@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>白酒品酒师助手 V2.0</title>
+<style>
+:root{
+  --bg:#100d0a; --bg2:#211712; --paper:#f7efe3; --paper2:#fffaf2;
+  --ink:#241a14; --muted:#746153; --line:#d7c5ad;
+  --gold:#bd9355; --gold2:#e3c487; --wine:#7b2f25; --red:#9e3b31;
+  --green:#40694f; --blue:#314f73; --dark:#2c211b; --shadow:rgba(0,0,0,.26);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 12% 5%, rgba(227,196,135,.18), transparent 26%),
+    radial-gradient(circle at 88% 18%, rgba(123,47,37,.25), transparent 30%),
+    linear-gradient(135deg,#120f0c 0%,#241912 48%,#0f0c0a 100%);
+  min-height:100vh;
+}
+body:before{
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.5;
+  background:
+    linear-gradient(110deg, transparent 0 54%, rgba(255,255,255,.035) 54% 54.16%, transparent 54.16%),
+    radial-gradient(ellipse at 72% 24%, rgba(255,237,200,.08), transparent 36%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.016) 0 1px, transparent 1px 7px);
+}
+button,input,select,textarea{font:inherit}
+.app{max-width:1240px;margin:0 auto;padding:20px 14px 96px;position:relative}
+.hero{
+  color:#fff7eb;border:1px solid rgba(227,196,135,.28);
+  background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.025));
+  border-radius:30px;padding:30px 26px;box-shadow:0 24px 70px var(--shadow);
+  backdrop-filter:blur(14px);overflow:hidden;position:relative;
+}
+.hero:after{content:"";position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(227,196,135,.24),transparent 62%)}
+.brand{letter-spacing:.24em;color:var(--gold2);font-size:13px;margin-bottom:8px}
+h1{margin:0;font-size:clamp(30px,5vw,54px);line-height:1.16}
+.hero p{max-width:900px;color:#eadcca;margin:12px 0 0;line-height:1.8}
+.version-tags{margin-top:14px}
+.tag{display:inline-block;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(227,196,135,.25);color:#fff0d6;font-size:13px;margin:4px 5px 0 0}
+.quick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:18px 0 0}
+.btn,.primary,.ghost,.copy-btn{
+  border:0;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:800;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));color:#26170f;
+  box-shadow:0 10px 26px rgba(0,0,0,.19);
+}
+.ghost{background:rgba(255,255,255,.12);color:#fff7eb;border:1px solid rgba(227,196,135,.26);box-shadow:none}
+.copy-btn{padding:8px 10px;border-radius:12px;font-size:13px;box-shadow:none}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;margin-top:16px}
+.nav{
+  position:sticky;top:14px;align-self:start;border-radius:26px;padding:16px;
+  border:1px solid rgba(227,196,135,.22);
+  background:rgba(255,250,242,.93);box-shadow:0 18px 50px var(--shadow);backdrop-filter:blur(12px)
+}
+.nav button{
+  width:100%;display:block;text-align:left;margin:5px 0;padding:11px 12px;border:0;border-radius:14px;
+  background:transparent;color:var(--ink);font-weight:800;cursor:pointer
+}
+.nav button.active,.nav button:hover{background:#efe0c8;color:var(--wine)}
+.panel{
+  display:none;border-radius:28px;border:1px solid rgba(227,196,135,.25);
+  background:rgba(247,239,227,.97);box-shadow:0 18px 52px var(--shadow);overflow:hidden
+}
+.panel.active{display:block}
+.section{padding:24px}
+.section h2{margin:0 0 14px;color:var(--wine);font-size:29px}
+.section h3{margin:22px 0 10px;color:#4f3525}
+.lead{background:#fff8ec;border-left:5px solid var(--gold);border-radius:17px;padding:14px 16px;color:#4b3b2e;line-height:1.8}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{
+  background:var(--paper2);border:1px solid var(--line);border-radius:20px;padding:16px;
+  box-shadow:0 8px 20px rgba(72,47,28,.05)
+}
+.card h3,.card h4{margin-top:0;color:#5b3828}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.form-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+label{display:block;font-weight:800;color:#4d3d31;margin-bottom:6px}
+input,select,textarea{
+  width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;
+  background:#fffdf8;color:var(--ink);outline:none
+}
+textarea{min-height:112px;resize:vertical;line-height:1.75}
+.range-row{display:grid;grid-template-columns:150px 1fr 44px;gap:10px;align-items:center;margin:9px 0}
+input[type=range]{padding:0;accent-color:#9d7445}
+.value{font-weight:900;color:var(--wine);text-align:center}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.result{
+  margin-top:16px;background:#fffdf8;border:1px solid var(--line);border-radius:22px;padding:18px
+}
+.score-ring{
+  width:138px;height:138px;border-radius:50%;display:grid;place-items:center;margin:auto;
+  background:conic-gradient(var(--gold) 0deg,#e7ddcd 0deg);
+  box-shadow:inset 0 0 0 12px #fffaf2,0 12px 24px rgba(0,0,0,.08)
+}
+.score-ring span{font-size:38px;font-weight:950;color:var(--wine)}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;margin:3px;background:#efe0c8;color:#60412d;font-weight:800;font-size:13px}
+.badge.green{background:#e4efe7;color:#315e3b}.badge.red{background:#f2dfdb;color:#8b3025}.badge.blue{background:#dde8f2;color:#314f73}.badge.dark{background:#3b2b22;color:#fff0d8}
+.report-grid{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:start}
+.kv{display:grid;grid-template-columns:125px 1fr;gap:7px;margin:7px 0}
+.kv b{color:#5b4537}
+ul.clean{padding-left:1.1em;margin:8px 0} ul.clean li{margin:4px 0}
+.table{width:100%;border-collapse:collapse;background:#fffdf8;border-radius:16px;overflow:hidden;margin:10px 0}
+.table th,.table td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+.table th{background:#ead7bb}
+.script{background:#2d211a;color:#fff7eb;border-radius:18px;padding:14px;margin:10px 0;line-height:1.8;position:relative}
+.record-item{border:1px solid var(--line);background:#fffdf8;border-radius:18px;padding:14px;margin:10px 0}
+.progress-bar{height:9px;border-radius:999px;background:#e6d8c5;overflow:hidden}
+.progress-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--wine),var(--gold));width:0%}
+.compare-row{display:grid;grid-template-columns:1fr 110px 120px;gap:10px;align-items:end;margin:8px 0}
+.notice{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.7}
+.bottom{
+  display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(255,250,242,.97);
+  border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));z-index:20
+}
+.bottom button{flex:1;border:0;background:transparent;padding:7px 2px;border-radius:12px;font-weight:900;color:#5f4a3c}
+.bottom button.active{background:#ead7bb;color:var(--wine)}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}.nav{display:none}.bottom{display:flex}.quick{grid-template-columns:repeat(2,1fr)}
+  .grid,.grid3,.form-grid,.form-grid-3,.report-grid{grid-template-columns:1fr}.section{padding:18px}.range-row{grid-template-columns:118px 1fr 36px}
+  .compare-row{grid-template-columns:1fr}
+}
+@media print{
+  body{background:#fff}.hero,.nav,.bottom,.actions,.quick{display:none!important}.layout{display:block}.panel{display:block!important;box-shadow:none;border:0}.section{padding:0}
+}
+
+.score-guide{
+  background:#fffdf8;border:1px solid var(--line);border-radius:20px;padding:15px;margin:14px 0;
+}
+.score-guide h4{margin:0 0 10px;color:#5b3828}
+.scale-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.scale-cell{background:#f3e7d6;border:1px solid #dbc8ae;border-radius:14px;padding:9px;font-size:13px;line-height:1.55}
+.scale-cell b{display:block;color:var(--wine);font-size:16px}
+.help-note{
+  grid-column:1/-1;margin:-4px 0 8px 150px;padding:9px 11px;border-radius:12px;
+  background:#fff8ec;border:1px dashed #d1b789;color:#6b5647;font-size:13px;line-height:1.65
+}
+.help-note b{color:#7b2f25}
+.standard-table{width:100%;border-collapse:collapse;background:#fffdf8;border-radius:16px;overflow:hidden;margin:10px 0 18px}
+.standard-table th,.standard-table td{border:1px solid var(--line);padding:10px 11px;text-align:left;vertical-align:top}
+.standard-table th{background:#ead7bb;color:#3f2a1d}
+.dim-note{font-size:13px;color:#745f4f;line-height:1.7;margin:6px 0 12px}
+@media(max-width:900px){
+  .scale-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .help-note{margin-left:0}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <div class="brand">V2.1｜白酒品酒师助手</div>
+    <h1>酒体判断小能手 · 第二版优化</h1>
+    <p>在 V2.0 基础上补齐“评分标准”和“闻香大白话注解”：每个打分项都能知道 0—5 分怎么打，闻香每个香型旁边都有通俗解释，方便小白和销售现场使用。</p>
+    <div class="version-tags">
+      <span class="tag">0—5评分标准</span><span class="tag">闻香大白话注解</span><span class="tag">AI文字判断</span><span class="tag">竞品对标</span><span class="tag">报告导出</span>
+    </div>
+    <div class="quick">
+      <button class="btn" onclick="showPanel('taste')">开始品鉴</button>
+      <button class="btn" onclick="showPanel('ai')">AI文字判断</button>
+      <button class="btn" onclick="showPanel('compare')">多酒对比</button>
+      <button class="btn" onclick="showPanel('benchmark')">竞品对标</button>
+      <button class="btn" onclick="showPanel('records')">我的记录</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="nav">
+      <button class="active" data-go="home">首页</button>
+      <button data-go="standard">评分标准</button>
+      <button data-go="taste">一键品鉴</button>
+      <button data-go="ai">AI文字判断</button>
+      <button data-go="quick">快速判断</button>
+      <button data-go="price">价格查询</button>
+      <button data-go="benchmark">竞品对标</button>
+      <button data-go="compare">多酒对比</button>
+      <button data-go="craft">工艺速查</button>
+      <button data-go="scripts">话术库</button>
+      <button data-go="records">我的记录</button>
+      <button data-go="training">训练中心</button>
+    </aside>
+
+    <main>
+      <section id="home" class="panel active"><div class="section">
+        <h2>第二版升级内容</h2>
+        <div class="lead">V2.1 重点补齐评分标准：先告诉用户“怎么闻、怎么尝、怎么打分”，再输出酒体判断、价格匹配和销售话术。</div>
+        <div class="grid3">
+          <div class="card"><h3>1. AI文字判断</h3><p>直接输入“入口辣、中段薄、后段苦、空杯短”等描述，系统自动提取关键词并生成判断。</p></div>
+          <div class="card"><h3>2. 竞品对标</h3><p>按价格、风格、场景，输出可参考的对标方向，并说明像在哪里、不像在哪里。</p></div>
+          <div class="card"><h3>3. 多款酒对比</h3><p>支持输入多款样品分数与价格，自动排序并提示主推、谨慎、淘汰。</p></div>
+          <div class="card"><h3>4. 风险矛盾识别</h3><p>识别前香强中段弱、陈香明显入口新辣、高价低质、苦涩不化等问题。</p></div>
+          <div class="card"><h3>5. 报告导出</h3><p>支持复制 JSON、导出文本、浏览器打印为 PDF，方便培训和复盘。</p></div>
+          <div class="card"><h3>6. 训练中心</h3><p>内置判断题，训练销售人员理解坤沙、碎沙、辣口、苦尾和价格带。</p></div>
+        </div>
+      </div></section>
+
+
+      <section id="standard" class="panel"><div class="section">
+        <h2>评分标准：0—5分怎么打</h2>
+        <div class="lead">打分不是凭感觉乱点。所有维度统一按 0—5 分判断：0 是没有或严重异常，3 是普通合格，5 是非常清晰且舒服。负向项目如“辣口、酒精感、苦感、涩感、空心感”，分数越高代表问题越严重。</div>
+
+        <div class="score-guide">
+          <h4>通用评分标尺</h4>
+          <div class="scale-grid">
+            <div class="scale-cell"><b>0分</b>没有这个感觉，或严重异常到无法接受。</div>
+            <div class="scale-cell"><b>1分</b>很弱，几乎感受不到；负向项则是轻微问题。</div>
+            <div class="scale-cell"><b>2分</b>偏弱，有一点但不明显；负向项为可感知。</div>
+            <div class="scale-cell"><b>3分</b>中等，普通合格，能清楚感受到。</div>
+            <div class="scale-cell"><b>4分</b>明显，表现较好；负向项为明显问题。</div>
+            <div class="scale-cell"><b>5分</b>非常突出；负向项为严重问题。</div>
+          </div>
+        </div>
+
+        <h3>闻香评分标准</h3>
+        <table class="standard-table">
+          <tr><th>香气</th><th>大白话解释</th><th>0—2分</th><th>3分</th><th>4—5分</th></tr>
+          <tr><td>酱香</td><td>像豆酱、酱油、熟粮发酵后的沉稳香，不是菜味。</td><td>几乎没有酱味，只是酒精味或甜香。</td><td>能闻到酱香，但不够厚。</td><td>酱香清楚、自然、沉稳，有主体感。</td></tr>
+          <tr><td>曲香</td><td>像麦曲、发酵面团、热面包皮、曲块的香。</td><td>闻不到曲香，香气单薄。</td><td>有一点发酵曲香。</td><td>曲香明显，和酱香能融合。</td></tr>
+          <tr><td>粮香</td><td>像蒸熟的高粱、小麦、谷物粮食香。</td><td>没有粮食底香。</td><td>有基础粮香。</td><td>粮香干净，说明底子较自然。</td></tr>
+          <tr><td>焦香/烘焙香</td><td>像烤粮食、烤面包边、轻微焦糖、坚果皮香。</td><td>没有焦香，或只有糊味。</td><td>有轻微烘焙感。</td><td>焦香舒服、有层次，不是焦糊死味。</td></tr>
+          <tr><td>陈香</td><td>像老木柜、老酒坛、沉稳熟香，不是霉味。</td><td>没有陈感，酒显得新。</td><td>有一点成熟气息。</td><td>陈香自然、沉稳、和酒体融合。</td></tr>
+          <tr><td>花果/青草香</td><td>像淡淡果香、花香、青植物气息，多见于新派柔顺风格。</td><td>没有或很弱。</td><td>有轻微清爽感。</td><td>香气舒适，但不能盖过酱香骨架。</td></tr>
+          <tr><td>酒精刺鼻</td><td>一闻就冲鼻子、辣鼻子、像酒精棉片。</td><td>0—1分最好，说明不冲。</td><td>中等刺激，可接受。</td><td>4—5分是明显缺陷，会影响入口。</td></tr>
+        </table>
+
+        <h3>入口、中段、后段、空杯评分标准</h3>
+        <table class="standard-table">
+          <tr><th>维度</th><th>怎么判断</th><th>低分表现</th><th>高分表现</th></tr>
+          <tr><td>顺滑度</td><td>第一口是否柔和、圆润、不卡喉。</td><td>辣、冲、刺、割喉。</td><td>入口圆、顺、没有明显毛刺。</td></tr>
+          <tr><td>入口刺激/辣口</td><td>这是负向项，分数越高问题越大。</td><td>0—1分说明刺激低。</td><td>4—5分说明辣口明显，需提示风险。</td></tr>
+          <tr><td>酒精感外露</td><td>香气和酒精是否分离，是否像酒精浮在表面。</td><td>酒体和香气抱得住。</td><td>酒精味冲在前面，香气散。</td></tr>
+          <tr><td>中段厚度</td><td>酒入口后在舌面是否铺开，有没有支撑。</td><td>前面香，马上空、断、薄。</td><td>舌面有铺展，酱香能延续。</td></tr>
+          <tr><td>结构感</td><td>入口、中段、后段是否连续。</td><td>前后断层，喝完没内容。</td><td>从入口到回味一条线连起来。</td></tr>
+          <tr><td>空心/断层感</td><td>这是负向项，分数越高问题越大。</td><td>0—1分说明结构连续。</td><td>4—5分说明只有前香，中间空。</td></tr>
+          <tr><td>苦感</td><td>这是负向项，但微苦能化不一定是缺点。</td><td>0—2分苦感轻。</td><td>4—5分若压舌、不回甘，就是风险。</td></tr>
+          <tr><td>涩感</td><td>是否口腔发干、舌面收紧。</td><td>0—1分说明干净。</td><td>4—5分说明涩口明显，舒适度差。</td></tr>
+          <tr><td>回甘/生津</td><td>咽下后是否有回甜、口腔生津。</td><td>没有回甘，尾短。</td><td>苦后能化，口腔有回甜和津液。</td></tr>
+          <tr><td>空杯留香</td><td>杯子倒空后，闻杯壁是否还有干净粮曲香。</td><td>很快没香，或变酸变臭。</td><td>1—3小时仍干净，6小时以上更好。</td></tr>
+        </table>
+      </div></section>
+
+      <section id="taste" class="panel"><div class="section">
+        <h2>一键品鉴判断 V2</h2>
+        <div class="lead">评分逻辑：观色5%、闻香20%、入口15%、中段25%、后段20%、空杯10%、醒酒变化5%。输出倾向和风险，不做绝对断言。</div>
+
+        <h3>基础信息</h3>
+        <div class="form-grid-3">
+          <div><label>产品名称</label><input id="productName" placeholder="例如：某酱香酒"/></div>
+          <div><label>品牌类型</label><select id="brandTier">
+            <option value="1">小品牌 / 酒厂直供</option><option value="1.1">区域品牌</option><option value="1.25">成长型全国品牌</option><option value="1.45">全国强品牌</option><option value="2.4">硬通货品牌</option>
+          </select></div>
+          <div><label>单瓶价格</label><input id="priceInput" type="number" placeholder="例如：398"/></div>
+          <div><label>使用场景</label><select id="scene"><option>自饮</option><option>普通聚餐</option><option>商务宴请</option><option>送礼</option><option>招商</option></select></div>
+          <div><label>宣称工艺</label><select id="claimCraft"><option>未标注</option><option>坤沙</option><option>碎沙</option><option>翻沙</option><option>串沙</option><option>老酒调味</option><option>年份酒</option></select></div>
+          <div><label>醒酒环境</label><select id="environment"><option>常温标准杯</option><option>低温</option><option>饭后</option><option>已饮酒后</option><option>盲品</option></select></div>
+        </div>
+
+        <h3>观色</h3>
+        <div class="form-grid">
+          <div><label>清亮度</label><select id="clarity"><option value="5">清亮透明</option><option value="4">微黄透亮</option><option value="3">偏黄但透明</option><option value="1">浑浊</option><option value="0">有悬浮物/沉淀</option></select></div>
+          <div><label>异常色泽/沉淀风险</label><select id="colorRisk"><option value="0">无</option><option value="1">轻微</option><option value="3">明显</option><option value="5">严重</option></select></div>
+        </div>
+
+        <h3>闻香</h3>
+
+        <div class="score-guide">
+          <h4>先看评分标尺</h4>
+          <div class="scale-grid">
+            <div class="scale-cell"><b>0</b>没有 / 严重异常</div>
+            <div class="scale-cell"><b>1</b>很弱</div>
+            <div class="scale-cell"><b>2</b>偏弱</div>
+            <div class="scale-cell"><b>3</b>普通合格</div>
+            <div class="scale-cell"><b>4</b>明显较好</div>
+            <div class="scale-cell"><b>5</b>非常突出</div>
+          </div>
+          <p class="dim-note">注意：酒精刺鼻、入口刺激、酒精感外露、空心/断层感、苦感、涩感是负向项，分数越高代表问题越明显。</p>
+        </div>
+
+        <div id="aromaRanges"></div>
+        <div class="form-grid">
+          <div><label>风险香类型</label><select id="offType"><option value="无">无</option><option value="酒精刺鼻">酒精刺鼻</option><option value="酸臭">酸臭</option><option value="霉味">霉味</option><option value="塑料味">塑料味</option><option value="糟味">糟味</option><option value="香精感">香精感</option></select></div>
+          <div><label>风险香强度</label><select id="offLevel"><option value="0">无</option><option value="1">轻微</option><option value="3">明显</option><option value="5">严重</option></select></div>
+        </div>
+
+        <h3>入口</h3><div id="entryRanges"></div>
+        <h3>中段</h3><div id="middleRanges"></div>
+        <h3>后段</h3><div id="finishRanges"></div>
+
+        <h3>空杯与动态变化</h3>
+        <div class="form-grid">
+          <div><label>空杯留香时长</label><select id="emptyDuration"><option value="0">很快没有香</option><option value="1">15分钟</option><option value="2">1小时</option><option value="3">3小时</option><option value="4">6小时</option><option value="5">隔夜仍干净</option></select></div>
+          <div><label>空杯干净度</label><select id="emptyClean"><option value="5">干净自然</option><option value="4">较干净</option><option value="3">一般</option><option value="2">变闷</option><option value="1">变酸/变杂</option><option value="0">明显异味</option></select></div>
+          <div><label>醒酒10-30分钟变化</label><select id="dynamic"><option value="5">越醒越香，刺激下降</option><option value="4">略有改善</option><option value="3">基本不变</option><option value="2">香气变弱</option><option value="1">杂味/苦味上升</option></select></div>
+          <div><label>备注</label><input id="noteInput" placeholder="例如：入口辣、后段微苦"/></div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="generateReport()">生成品鉴报告</button>
+          <button class="ghost" onclick="resetForm()">重置输入</button>
+        </div>
+        <div id="report" class="result" style="display:none"></div>
+      </div></section>
+
+      <section id="ai" class="panel"><div class="section">
+        <h2>AI自然语言判断</h2>
+        <div class="lead">第二版新增：不用填表，直接输入品鉴描述，系统会自动抓取“辣、苦、薄、厚、陈香、空杯、价格”等关键词，生成结构判断。此功能为本地规则版，不联网。</div>
+        <div class="form-grid">
+          <div><label>产品价格</label><input id="aiPrice" type="number" placeholder="例如：398"/></div>
+          <div><label>品牌类型</label><select id="aiBrand"><option value="1">普通/小品牌</option><option value="1.25">成长型品牌</option><option value="1.45">全国强品牌</option><option value="2.4">硬通货品牌</option></select></div>
+        </div>
+        <label>输入品鉴描述</label>
+        <textarea id="aiText" placeholder="例如：闻起来酱香和陈香比较明显，入口有点辣，中段还可以但不算厚，后段有苦味，苦能化，空杯3小时比较干净，价格398元。"></textarea>
+        <div class="actions"><button class="primary" onclick="aiJudge()">生成AI判断</button><button class="ghost" onclick="fillAiExample()">填入示例</button></div>
+        <div id="aiResult" class="result" style="display:none"></div>
+      </div></section>
+
+      <section id="quick" class="panel"><div class="section">
+        <h2>快速判断</h2>
+        <div class="lead">销售现场快速用：只填 6 个问题，直接给出方向。</div>
+        <div class="form-grid">
+          <div><label>闻香表现</label><select id="qAroma"><option value="4">香气复合自然</option><option value="3">有酱香但层次一般</option><option value="2">香气直接偏单一</option><option value="1">刺鼻或不自然</option></select></div>
+          <div><label>入口表现</label><select id="qEntry"><option value="4">顺，有香气冲击</option><option value="3">略冲但可接受</option><option value="2">明显辣口</option><option value="1">刺喉/酒精感浮</option></select></div>
+          <div><label>中段厚度</label><select id="qMiddle"><option value="4">厚，有铺展</option><option value="3">中等，有延续</option><option value="2">偏薄</option><option value="1">空，断层</option></select></div>
+          <div><label>后段表现</label><select id="qFinish"><option value="4">干净，有回甘</option><option value="3">微苦能化</option><option value="2">尾短</option><option value="1">苦涩压舌</option></select></div>
+          <div><label>空杯表现</label><select id="qEmpty"><option value="4">干净持久</option><option value="3">1-3小时较干净</option><option value="2">较短</option><option value="1">变酸/变杂</option></select></div>
+          <div><label>价格</label><input id="qPrice" type="number" placeholder="例如：398"/></div>
+        </div>
+        <div class="actions"><button class="primary" onclick="quickJudge()">快速生成</button></div>
+        <div id="quickResult" class="result" style="display:none"></div>
+      </div></section>
+
+      <section id="price" class="panel"><div class="section">
+        <h2>价格带查询</h2>
+        <div class="form-grid">
+          <div><label>输入单瓶价格</label><input id="priceQuery" type="number" placeholder="例如：398"/></div>
+          <div><label>品牌类型</label><select id="priceBrand"><option value="普通品牌">普通品牌</option><option value="区域品牌">区域品牌</option><option value="全国强品牌">全国强品牌</option><option value="硬通货品牌">硬通货品牌</option></select></div>
+        </div>
+        <div class="actions"><button class="primary" onclick="queryPrice()">查询</button></div>
+        <div id="priceResult" class="result" style="display:none"></div>
+      </div></section>
+
+      <section id="benchmark" class="panel"><div class="section">
+        <h2>竞品对标</h2>
+        <div class="lead">输入价格和风格，输出对标方向。注意：这里是“销售对标方向”，不是断言酒质等同。</div>
+        <div class="form-grid-3">
+          <div><label>价格带</label><select id="bmPrice"><option value="100">100元以内</option><option value="200">100—200元</option><option value="300">200—300元</option><option value="500">300—500元</option><option value="800">500—800元</option><option value="1200">800—1200元</option><option value="1500">1200元以上</option></select></div>
+          <div><label>风格</label><select id="bmStyle"><option>柔顺新派</option><option>传统厚重</option><option>商务稳定</option><option>口粮入门</option><option>礼赠品牌</option></select></div>
+          <div><label>主要场景</label><select id="bmScene"><option>自饮</option><option>商务宴请</option><option>送礼</option><option>招商</option><option>低价引流</option></select></div>
+        </div>
+        <div class="actions"><button class="primary" onclick="benchmark()">生成对标建议</button></div>
+        <div id="benchmarkResult" class="result" style="display:none"></div>
+      </div></section>
+
+      <section id="compare" class="panel"><div class="section">
+        <h2>多款酒对比</h2>
+        <div class="lead">适合招商、选品、内部盲评。输入多款样品的分数、价格和备注，系统自动给出主推/观察/淘汰建议。</div>
+        <div id="compareBox"></div>
+        <div class="actions"><button class="primary" onclick="addCompareRow()">增加样品</button><button class="primary" onclick="runCompare()">生成对比</button><button class="ghost" onclick="loadRecordsToCompare()">从记录导入</button></div>
+        <div id="compareResult" class="result" style="display:none"></div>
+      </div></section>
+
+      <section id="craft" class="panel"><div class="section">
+        <h2>工艺速查</h2>
+        <div class="grid">
+          <div class="card"><h3>坤沙</h3><p>看厚度、层次、后段与空杯。成熟坤沙应做到顺、厚、长、净。</p><span class="badge">300元以上</span><span class="badge green">中高端主体</span></div>
+          <div class="card"><h3>碎沙</h3><p>前香快、入口较容易，但中段偏薄，后段较短。适合入门口粮。</p><span class="badge">80—250元</span></div>
+          <div class="card"><h3>翻沙</h3><p>有酱香影子，但中段薄、尾短，可能带糟味或苦杂。适合低预算。</p><span class="badge">50—150元</span></div>
+          <div class="card"><h3>串沙</h3><p>低成本取香，酒体结构弱，适合极低预算和促销引流，不适合高端表达。</p><span class="badge">30—100元</span><span class="badge red">谨慎高价</span></div>
+          <div class="card"><h3>大曲酱香</h3><p>酱香、曲香、粮香、焦香、陈香复合，中段和空杯是核心。</p></div>
+          <div class="card"><h3>老酒调味</h3><p>闻香可能有陈香，但如果入口仍新辣、中段不厚，就不能按老酒主体讲。</p></div>
+        </div>
+      </div></section>
+
+      <section id="scripts" class="panel"><div class="section">
+        <h2>销售话术库</h2>
+        <div id="scriptList"></div>
+      </div></section>
+
+      <section id="records" class="panel"><div class="section">
+        <h2>我的品鉴记录</h2>
+        <div class="actions"><button class="primary" onclick="renderRecords()">刷新记录</button><button class="ghost" onclick="clearRecords()">清空记录</button><button class="primary" onclick="exportRecords()">导出记录</button></div>
+        <div id="recordsList"></div>
+      </div></section>
+
+      <section id="training" class="panel"><div class="section">
+        <h2>训练中心</h2>
+        <div class="lead">用于销售团队训练：判断工艺、价格风险、销售表达。答完后显示解析。</div>
+        <div id="trainingBox"></div>
+        <div class="actions"><button class="primary" onclick="nextQuestion()">下一题</button></div>
+      </div></section>
+    </main>
+  </div>
+</div>
+
+<nav class="bottom">
+  <button class="active" data-go="home">首页</button>
+  <button data-go="taste">品鉴</button>
+  <button data-go="ai">AI</button>
+  <button data-go="compare">对比</button>
+  <button data-go="records">记录</button>
+</nav>
+
+<script>
+const rangeDefs = {
+  aromaRanges:[
+    ['sauce','酱香','像豆酱、酱油、熟粮发酵后的沉稳香。0分=没有酱味；3分=有酱味；5分=酱香清楚、自然、沉稳。'],
+    ['qu','曲香','像麦曲、发酵面团、热面包皮、曲块的香。曲香不是霉味，好的曲香是干净发酵香。'],
+    ['grain','粮香','像蒸熟的高粱、小麦、谷物粮食香。粮香干净，说明底子更自然。'],
+    ['roasted','焦香/烘焙香','像烤粮食、烤面包边、轻微焦糖、坚果皮香。舒服叫焦香，刺鼻发糊叫焦糊味。'],
+    ['aged','陈香','像老酒坛、老木柜、沉稳熟香。陈香应自然融合，不是霉味、闷味。'],
+    ['floral','花果/青草香','像淡淡果香、花香、青植物气息。新派酱香常见，但不能盖过酱香骨架。'],
+    ['alcoholNose','酒精刺鼻','负向项：像酒精棉片一样冲鼻、辣鼻。分数越高问题越明显，0—1分最好。']
+  ],
+  entryRanges:[
+    ['smooth','顺滑度','第一口是否圆润、柔和、不卡喉。0分=很冲；3分=可接受；5分=入口圆顺。'],
+    ['stimulation','入口刺激/辣口','负向项：辣舌、冲口、刺喉。0—1分最好，4—5分说明入口风险明显。'],
+    ['alcoholFloat','酒精感外露','负向项：酒精味是否浮在香气上面。高分代表香气和酒体不抱团。'],
+    ['sweet','甜润感','入口是否有自然甜润，不是糖水甜、腻甜。3分=有一点；5分=自然圆润。'],
+    ['wrap','包裹感/抱团感','香气、酒体、酒精是否融合在一起。高分代表不散、不飘、不刺激。']
+  ],
+  middleRanges:[
+    ['thickness','酒体厚度','入口后舌面是否有铺展和支撑。低分=薄、空；高分=厚、有内容。'],
+    ['continuity','连续性','入口到中段再到后段是否连贯。低分=断层；高分=一条线连起来。'],
+    ['structure','结构感','酒体是否有骨架，酸甜苦香是否平衡。高分代表不是单纯前香。'],
+    ['hollow','空心/断层感','负向项：闻着香但喝到中间空。分数越高，主体酒体越弱。']
+  ],
+  finishRanges:[
+    ['bitterness','苦感','负向项但要区分：微苦能化可接受；尖苦、压舌、不散就是风险。'],
+    ['astringency','涩感','负向项：舌面收紧、口腔发干、涩口。分数越高舒适度越差。'],
+    ['sweetBack','回甘','咽下后是否有回甜。高分代表苦能化、尾段有回味。'],
+    ['salivation','生津','喝完后口腔是否有津液，不干不紧。高分代表饮后舒适。'],
+    ['cleanFinish','尾净/干净度','后味是否干净，有没有杂味、酸臭、焦糊死味。高分代表尾段干净。']
+  ]
+};
+const scoreWords = {
+  positive:['0=没有/很差','1=很弱','2=偏弱','3=合格','4=明显好','5=非常好'],
+  negative:['0=没有问题','1=轻微','2=可感知','3=中等','4=明显问题','5=严重问题']
+};
+function isNegative(id){return ['alcoholNose','stimulation','alcoholFloat','hollow','bitterness','astringency'].includes(id)}
+function makeRanges(){
+  Object.entries(rangeDefs).forEach(([box,arr])=>{
+    document.getElementById(box).innerHTML=arr.map(([id,name,note])=>{
+      const words=(isNegative(id)?scoreWords.negative:scoreWords.positive).join('｜');
+      return `<div class="range-row"><label>${name}</label><input type="range" min="0" max="5" step="1" value="3" id="${id}" oninput="syncVal('${id}')"/><div class="value" id="${id}Val">3</div><div class="help-note"><b>${name}：</b>${note}<br><span>${words}</span></div></div>`
+    }).join('')
+  })
+}
+function syncVal(id){document.getElementById(id+'Val').textContent=document.getElementById(id).value}
+function num(id){return Number(document.getElementById(id)?.value||0)}
+function val(id){return document.getElementById(id)?.value||''}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function pct(x){return Math.round(clamp(x,0,5)*20)}
+function avg(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
+function showPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('[data-go]').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll(`[data-go="${id}"]`).forEach(b=>b.classList.add('active'));window.scrollTo({top:0,behavior:'smooth'})}
+document.addEventListener('click',e=>{if(e.target.dataset.go) showPanel(e.target.dataset.go)});
+function moduleScores(){
+  const color=clamp((num('clarity')-num('colorRisk')*.55),0,5);
+  const aromaPositive=(num('sauce')*.24+num('qu')*.16+num('grain')*.14+num('roasted')*.14+num('aged')*.18+num('floral')*.08+(5-num('alcoholNose'))*.06);
+  const aroma=clamp(aromaPositive-num('offLevel')*.55,0,5);
+  const entry=clamp(num('smooth')*.30+(5-num('stimulation'))*.25+(5-num('alcoholFloat'))*.20+num('sweet')*.10+num('wrap')*.15,0,5);
+  const middle=clamp(num('thickness')*.40+num('continuity')*.30+num('structure')*.25+(5-num('hollow'))*.05-Math.max(0,num('hollow')-3)*.35,0,5);
+  const bitterPenalty=num('bitterness')<=3?num('bitterness')*.12:num('bitterness')*.35;
+  const finish=clamp(num('sweetBack')*.25+num('salivation')*.20+num('cleanFinish')*.30+(5-num('astringency'))*.15+(5-bitterPenalty)*.10,0,5);
+  const empty=clamp(num('emptyDuration')*.50+num('emptyClean')*.50,0,5);
+  const dynamic=num('dynamic');
+  return {color,aroma,entry,middle,finish,empty,dynamic}
+}
+function totalScore(s){return Math.round(pct(s.color)*.05+pct(s.aroma)*.20+pct(s.entry)*.15+pct(s.middle)*.25+pct(s.finish)*.20+pct(s.empty)*.10+pct(s.dynamic)*.05)}
+function craftAnalysis(s){
+  const aromaCore=avg([num('sauce'),num('qu'),num('grain'),num('roasted')]);
+  const lowRisk=5-Math.max(num('offLevel'),num('alcoholNose')*.55);
+  const kunsha=clamp((s.middle*.25+s.empty*.20+aromaCore*.20+s.finish*.15+s.dynamic*.10+lowRisk*.10)*20,0,100);
+  const suisha=clamp((Math.max(s.aroma,3)*.22+s.entry*.15+(5-s.middle)*.25+(5-s.finish)*.18+(5-s.empty)*.20)*20,0,100);
+  const fansha=clamp((Math.min(num('sauce'),3)*.16+(5-s.middle)*.25+Math.max(num('bitterness'),num('astringency'))*.22+num('offLevel')*.18+(5-s.empty)*.19)*20,0,100);
+  const chuansha=clamp(((5-s.middle)*.25+(5-s.empty)*.22+(5-s.finish)*.18+num('alcoholFloat')*.15+num('offLevel')*.12+(num('priceInput')>0&&num('priceInput')<120?4:2)*.08)*20,0,100);
+  const oldBlend=clamp((num('aged')*.30+num('stimulation')*.18+(5-s.middle)*.22+(5-s.finish)*.15+(5-s.empty)*.15)*20,0,100);
+  let arr=[['坤沙倾向',kunsha],['碎沙主体/碎沙调味倾向',suisha],['翻沙或低端碎沙倾向',fansha],['串沙/低成本取香倾向',chuansha],['老酒调味但非老酒主体倾向',oldBlend]].sort((a,b)=>b[1]-a[1]);
+  let top=arr[0], craft=top[0], confidence=Math.round(top[1]);
+  if(craft==='坤沙倾向'){craft=(s.entry>=3.6&&s.middle>=3.8&&s.finish>=3.6&&s.empty>=3.5)?'5—7年坤沙或成熟坤沙倾向':'3—5年坤沙或坤沙主体偏年轻倾向'}
+  return {craft,confidence,all:arr}
+}
+function qualityBand(craft,score){
+  if(craft.includes('串沙'))return'30—100元'; if(craft.includes('翻沙'))return'50—150元'; if(craft.includes('碎沙'))return score>=68?'120—300元':'80—250元'; if(craft.includes('老酒调味'))return'120—300元'; if(craft.includes('5—7'))return'500—900元'; if(craft.includes('3—5'))return'250—500元'; if(score>=88)return'800—1500元'; if(score>=78)return'500—900元'; if(score>=68)return'250—500元'; return'80—250元'
+}
+function riskLevel(score,s,price){
+  let risks=[];
+  if(num('offLevel')>=3)risks.push('存在明显风险香');
+  if(num('stimulation')>=4)risks.push('入口刺激/辣口明显');
+  if(num('alcoholFloat')>=4)risks.push('酒精感外露');
+  if(s.middle<=2.5&&s.aroma>=3.5)risks.push('前香强但中段薄，存在结构断层');
+  if(num('bitterness')>=4&&num('sweetBack')<=2)risks.push('后段苦感压舌，回甘不足');
+  if(s.empty<=2)risks.push('空杯表现偏弱');
+  if(price>=500&&score<75)risks.push('价格与酒体表现存在不匹配风险');
+  const claim=val('claimCraft');
+  if(claim==='坤沙'&&s.middle<=2.8)risks.push('宣称坤沙但中段支撑不足，需要谨慎核实');
+  let level='B｜可销售';
+  if(score>=82&&risks.length<=1)level='A｜可主推'; else if(score>=70)level='B｜可销售'; else if(score>=60)level='C｜谨慎推荐'; else level='D｜不建议主推';
+  if(risks.length>=4)level='C｜谨慎推荐'; if(num('offLevel')>=5)level='D｜不建议主推';
+  return {level,risks}
+}
+function strengthsWeaknesses(s){
+  const strengths=[],weaknesses=[],contradictions=[];
+  if(s.aroma>=3.7)strengths.push('闻香结构较好，酱香/曲香/复合香有基础');
+  if(s.entry>=3.6)strengths.push('入口舒适度较好，刺激控制相对稳定');
+  if(s.middle>=3.6)strengths.push('中段有支撑，酒体不是单纯前香型');
+  if(s.finish>=3.6)strengths.push('后段较干净，有回甘或生津表现');
+  if(s.empty>=3.5)strengths.push('空杯表现较好，基酒和储存有一定支撑');
+  if(num('stimulation')>=4)weaknesses.push('入口辣口明显，可能存在融合不足或新酒刺激');
+  if(num('alcoholFloat')>=4)weaknesses.push('酒精感外露，香气与酒体包裹不够');
+  if(s.middle<=2.6)weaknesses.push('中段偏薄，主体酒体支撑不足');
+  if(num('bitterness')>=4)weaknesses.push('后段苦感偏重，需要看是否能化开');
+  if(num('astringency')>=4)weaknesses.push('涩感明显，可能影响饮后舒适度');
+  if(s.empty<=2.3)weaknesses.push('空杯留香偏短或不够干净');
+  if(s.aroma>=3.8&&s.middle<=2.6)contradictions.push('闻香较强但中段薄，可能是前香修饰大于主体结构');
+  if(num('aged')>=4&&(num('stimulation')>=3||num('alcoholFloat')>=3)&&s.middle<=3.2)contradictions.push('陈香明显但入口仍新辣，可能是老酒调味而非老酒主体');
+  if(s.empty>=4&&s.middle<=2.6)contradictions.push('空杯较强但中段弱，需警惕后调型或香气与结构不一致');
+  return {strengths,weaknesses,contradictions}
+}
+function customerFit(s,score,craft,brandFactor){
+  let fit=[],avoid=[];
+  if(s.entry>=3.7&&num('bitterness')<=3&&num('stimulation')<=3)fit.push('新手客户'); else avoid.push('新手客户');
+  if(s.middle>=3.5&&(num('sauce')+num('qu'))>=7)fit.push('老酒客/懂酒客户');
+  if(brandFactor>=1.25&&s.entry>=3&&score>=70)fit.push('商务宴请'); else if(s.entry<3||score<70)avoid.push('商务宴请');
+  if(brandFactor>=1.45&&score>=75)fit.push('送礼客户'); else avoid.push('高端送礼');
+  if(score>=65)fit.push('自饮客户');
+  return {fit:[...new Set(fit)],avoid:[...new Set(avoid)]}
+}
+function scriptsFor(s,craft,risks){
+  const traditional=craft.includes('坤沙')||s.middle>=3.5;
+  return {
+    新手客户:s.entry>=3.6?'这款酒入口比较友好，酱香感有但不压人，适合刚开始接触酱香的客户。':'这款酒风格偏传统，第一口有一定冲击，建议醒酒后再喝；如果客户怕辣口，需要谨慎推荐。',
+    懂酒客户:traditional?'这款酒重点看中段，有一定酒体支撑，酱香和曲香能延续到口腔，适合喜欢有结构、有回味的客户。':'这款酒更偏入口和前香表现，中段厚度不是强项，适合轻饮或入门，不建议按重骨架酱香去讲。',
+    商务客户:'商务场景建议重点讲稳定性和接受度。若客户不常喝酱香，建议提前醒酒，降低入口刺激感。',
+    风险解释:risks.length?'这款酒的主要风险点是：'+risks.join('、')+'。销售时不要过度拔高，应按实际价格带和客户接受度推荐。':'这款酒目前没有明显高风险项，可以围绕酒体优势和适用场景进行推荐。'
+  }
+}
+let lastReport=null;
+function generateReport(){
+  const s=moduleScores(),score=totalScore(s),ca=craftAnalysis(s),price=num('priceInput'),brandFactor=num('brandTier');
+  const band=qualityBand(ca.craft,score),risk=riskLevel(score,s,price),sw=strengthsWeaknesses(s),cf=customerFit(s,score,ca.craft,brandFactor),scripts=scriptsFor(s,ca.craft,risk.risks);
+  lastReport={date:new Date().toLocaleString(),productName:val('productName')||'未命名酒样',price,score,craft:ca.craft,confidence:ca.confidence,band,risk:risk.level,risks:risk.risks,strengths:sw.strengths,weaknesses:sw.weaknesses,contradictions:sw.contradictions,fit:cf.fit,avoid:cf.avoid,scripts,note:val('noteInput')};
+  renderReport(lastReport,s,ca)
+}
+function renderReport(r,s,ca){
+  const deg=Math.round(r.score*3.6);
+  const radar=`闻香${pct(s.aroma)}｜入口${pct(s.entry)}｜中段${pct(s.middle)}｜后段${pct(s.finish)}｜空杯${pct(s.empty)}`;
+  document.getElementById('report').style.display='block';
+  document.getElementById('report').innerHTML=`
+  <div class="report-grid">
+    <div><div class="score-ring" style="background:conic-gradient(var(--gold) ${deg}deg,#e7ddcd 0deg)"><span>${r.score}</span></div><p class="notice" style="text-align:center">综合评分</p></div>
+    <div><h3>${r.productName}</h3><div class="kv"><b>工艺倾向</b><span>${r.craft} <span class="badge dark">置信度 ${r.confidence}%</span></span></div><div class="kv"><b>合理价位</b><span>${r.band}</span></div><div class="kv"><b>风险等级</b><span>${r.risk}</span></div><div class="kv"><b>结构雷达</b><span>${radar}</span></div><div class="kv"><b>适合客户</b><span>${r.fit.map(x=>`<span class="badge green">${x}</span>`).join('')||'需谨慎判断'}</span></div><div class="kv"><b>不建议</b><span>${r.avoid.map(x=>`<span class="badge red">${x}</span>`).join('')||'无明显不适配'}</span></div></div>
+  </div>
+  <h3>模块分数</h3><table class="table"><tr><th>观色</th><th>闻香</th><th>入口</th><th>中段</th><th>后段</th><th>空杯</th><th>动态</th></tr><tr><td>${pct(s.color)}</td><td>${pct(s.aroma)}</td><td>${pct(s.entry)}</td><td>${pct(s.middle)}</td><td>${pct(s.finish)}</td><td>${pct(s.empty)}</td><td>${pct(s.dynamic)}</td></tr></table>
+  <h3>优势</h3><ul class="clean">${(r.strengths.length?r.strengths:['暂未形成明显优势，需要继续复评']).map(x=>`<li>${x}</li>`).join('')}</ul>
+  <h3>不足与矛盾</h3><ul class="clean">${([...r.weaknesses,...r.contradictions].length?[...r.weaknesses,...r.contradictions]:['暂未发现明显结构性短板']).map(x=>`<li>${x}</li>`).join('')}</ul>
+  <h3>销售话术</h3>${Object.entries(r.scripts).map(([k,v])=>`<div class="script"><b>${k}：</b>${v}<br><button class="copy-btn" onclick="copyText('${encodeURIComponent(v)}')">复制话术</button></div>`).join('')}
+  <div class="actions"><button class="primary" onclick="saveCurrent()">保存记录</button><button class="primary" onclick="exportTextReport()">导出文本</button><button class="ghost" onclick="window.print()">打印/PDF</button><button class="ghost" onclick="copyReport()">复制JSON</button></div>`
+}
+function saveCurrent(){if(!lastReport)return alert('请先生成报告');const arr=JSON.parse(localStorage.getItem('baijiu_records_v2')||'[]');arr.unshift(lastReport);localStorage.setItem('baijiu_records_v2',JSON.stringify(arr.slice(0,200)));alert('已保存到我的记录')}
+function copyText(t){navigator.clipboard.writeText(decodeURIComponent(t));}
+function copyReport(){navigator.clipboard.writeText(JSON.stringify(lastReport,null,2));alert('已复制报告数据')}
+function exportTextReport(){if(!lastReport)return;const r=lastReport;const txt=`白酒品酒师助手V2报告\n产品：${r.productName}\n价格：${r.price}\n评分：${r.score}\n工艺倾向：${r.craft}（置信度${r.confidence}%）\n合理价位：${r.band}\n风险等级：${r.risk}\n优势：${r.strengths.join('；')}\n不足：${[...r.weaknesses,...r.contradictions].join('；')}\n适合客户：${r.fit.join('、')}\n销售话术：\n${Object.entries(r.scripts).map(([k,v])=>k+'：'+v).join('\n')}`;downloadFile('品酒报告_'+r.productName+'.txt',txt)}
+function resetForm(){document.querySelectorAll('#taste input').forEach(i=>{if(i.type==='range'){i.value=3;syncVal(i.id)}else i.value=''});document.getElementById('report').style.display='none'}
+function aiJudge(){
+  const text=val('aiText'), price=num('aiPrice'), brand=num('aiBrand');
+  if(!text.trim())return alert('请先输入品鉴描述');
+  const has=w=>text.includes(w), count=arr=>arr.reduce((n,w)=>n+(has(w)?1:0),0);
+  let aroma=2.8+count(['酱香','曲香','粮香','焦香','陈香','花果香'])*.28-count(['刺鼻','酸臭','霉味','塑料','香精'])*.45;
+  let entry=3; if(count(['顺','柔','圆润','好入口']))entry+=.8; if(count(['辣','刺喉','冲','酒精感']))entry-=.9;
+  let middle=3; if(count(['中段厚','厚','铺开','支撑','结构']))middle+=.9; if(count(['中段薄','薄','空','断','没中段']))middle-=1.2;
+  let finish=3; if(count(['回甘','生津','苦能化','干净','回香']))finish+=.8; if(count(['苦','涩','压舌','发紧','不散']))finish-=.7;
+  let empty=2.7; if(count(['空杯','留香','3小时','6小时','隔夜']))empty+=.7; if(count(['空杯短','没香','变酸','变臭']))empty-=1;
+  let dynamic=3; if(count(['越醒越香','刺激下降','更顺']))dynamic+=1; if(count(['杂味上来','更苦','香气变弱']))dynamic-=1;
+  aroma=clamp(aroma,0,5); entry=clamp(entry,0,5); middle=clamp(middle,0,5); finish=clamp(finish,0,5); empty=clamp(empty,0,5); dynamic=clamp(dynamic,0,5);
+  const score=Math.round(pct(aroma)*.22+pct(entry)*.16+pct(middle)*.28+pct(finish)*.22+pct(empty)*.08+pct(dynamic)*.04);
+  let craft='中端酱香倾向';
+  if(middle>=3.7&&empty>=3.4&&finish>=3.3)craft='坤沙或大曲酱香倾向';
+  if(aroma>=3.5&&middle<=2.6)craft='碎沙加调味或前香型酒体倾向';
+  if(middle<=2.3&&finish<=2.6&&empty<=2.5)craft='翻沙/串沙/低成本酱香风险';
+  if(count(['陈香','老酒'])&&count(['辣','新','刺激']))craft='老酒调味但非老酒主体倾向';
+  const band=score>=82?'500—900元':score>=72?'300—500元':score>=62?'120—300元':'30—150元';
+  const risks=[]; if(aroma>=3.6&&middle<=2.6)risks.push('前香强但中段薄'); if(count(['辣','刺喉']))risks.push('入口刺激风险'); if(count(['苦','涩'])&&!count(['苦能化','回甘']))risks.push('后段苦涩不化风险'); if(price>=500&&score<75)risks.push('高价低质风险');
+  document.getElementById('aiResult').style.display='block';
+  document.getElementById('aiResult').innerHTML=`<h3>AI文字判断结果</h3><div class="kv"><b>综合评分</b><span>${score}分</span></div><div class="kv"><b>工艺倾向</b><span>${craft}</span></div><div class="kv"><b>建议价位</b><span>${band}</span></div><div class="kv"><b>结构判断</b><span>闻香${pct(aroma)}｜入口${pct(entry)}｜中段${pct(middle)}｜后段${pct(finish)}｜空杯${pct(empty)}</span></div><h3>风险提示</h3><ul class="clean">${(risks.length?risks:['未发现明显高风险，但建议用正式品鉴表复评']).map(x=>`<li>${x}</li>`).join('')}</ul><h3>销售表达</h3><div class="script">${middle>=3.4?'这款酒可以围绕中段支撑和酱香结构去讲。':'这款酒不建议只讲闻香，应把它定位为入口型或入门型产品，避免高端化表达。'}${price?` 当前价格${price}元，需结合品牌认知判断是否有溢价支撑。`:''}</div>`;
+}
+function fillAiExample(){document.getElementById('aiText').value='闻起来酱香和陈香比较明显，入口有点辣，中段还可以但不算厚，后段有苦味，苦能化，空杯3小时比较干净，价格398元。';document.getElementById('aiPrice').value=398}
+function quickJudge(){const a=num('qAroma'),e=num('qEntry'),m=num('qMiddle'),f=num('qFinish'),em=num('qEmpty'),p=num('qPrice');const score=Math.round((a*20*.2)+(e*20*.2)+(m*20*.3)+(f*20*.2)+(em*20*.1));let craft='中端酱香倾向';if(m>=4&&f>=3&&em>=3)craft='坤沙或大曲酱香倾向';if(a>=3&&m<=2&&f<=2)craft='碎沙加调味或前香型酒体倾向';if(m<=2&&f<=2&&em<=2)craft='翻沙/串沙/低成本酱香风险';let band=score>=82?'500—900元':score>=72?'300—500元':score>=62?'100—300元':'30—150元';let warn=p&&((p>=500&&score<75)||(p>=300&&score<65))?'<span class="badge red">价格偏高风险</span>':'<span class="badge green">价格风险不高</span>';document.getElementById('quickResult').style.display='block';document.getElementById('quickResult').innerHTML=`<h3>快速判断结果</h3><p><b>评分：</b>${score}分</p><p><b>工艺倾向：</b>${craft}</p><p><b>建议价位：</b>${band} ${warn}</p><p><b>一句话建议：</b>${m>=3?'可以围绕中段支撑和场景推荐。':'不要只讲闻香，应重点提示中段薄和价格匹配风险。'}</p>`}
+function priceInfo(p,b){if(p<50)return'多为串沙、低端其他酱香或低价贴牌，重点看干净度，不讲高端故事。'; if(p<100)return'多为串沙、翻沙、低端碎沙，适合低预算入门。'; if(p<200)return'多为碎沙主体、碎沙加少量老酒调或品牌入门线，核心看顺口和无杂味。'; if(p<300)return'可能是较好碎沙调味、大曲坤沙入门或3年左右坤沙主体，必须看中段。'; if(p<500)return'中端酱香核心带，应具备3—5年坤沙主体或较好大曲酱香结构，入口明显辣会影响价值。'; if(p<800)return'次高端商务带，应做到入口顺、中段厚、后段净，不能有明显辣口。'; if(p<1200)return'高端商务/礼赠带，酒质之外还要看品牌、包装和认知。'; return'高端硬通货/品牌价值带，品牌、渠道、真伪和流通确定性非常关键。'}
+function queryPrice(){const p=num('priceQuery'),b=val('priceBrand');document.getElementById('priceResult').style.display='block';document.getElementById('priceResult').innerHTML=`<h3>${p||0}元价格带判断</h3><p>${priceInfo(p,b)}</p><p><b>品牌修正：</b>${b==='硬通货品牌'?'可接受明显品牌溢价，但仍要注意真伪和渠道。':b==='全国强品牌'?'可有一定品牌溢价，适合商务和礼赠。':b==='区域品牌'?'区域内可有溢价，跨区域要看客户认知。':'普通品牌主要靠酒质和价格说话，不宜过度溢价。'}</p>`}
+function benchmark(){
+  const p=val('bmPrice'),style=val('bmStyle'),scene=val('bmScene');
+  let refs=[];
+  if(p<=200)refs=['茅台王子/品牌入门线价格带','金沙回沙/地方入门酱香方向','碎沙或入门大曲酱香方向'];
+  else if(p<=500)refs=['红花郎10、国台国标、珍酒中端线方向','3—5年坤沙或中端大曲酱香方向','商务入门价位'];
+  else if(p<=800)refs=['红花郎15、习酒窖藏1988低位价方向','珍十五/国台十五年价格带方向','次高端宴请价位'];
+  else if(p<=1200)refs=['青花郎、君品习酒、茅台1935等商务高端认知方向','成熟坤沙+品牌背书方向'];
+  else refs=['飞天茅台/高端硬通货逻辑','高品牌认知+渠道确定性方向'];
+  let like=style==='柔顺新派'?'像在入口柔顺、刺激低、客户接受度高。':style==='传统厚重'?'像在酱香、曲香、中段厚度和后段回味。':style==='商务稳定'?'像在品牌认知、稳定性和场景安全。':style==='礼赠品牌'?'像在包装、认知和收礼人识别度。':'像在价格友好和入门接受度。';
+  document.getElementById('benchmarkResult').style.display='block';
+  document.getElementById('benchmarkResult').innerHTML=`<h3>对标建议</h3><p><b>可参考方向：</b>${refs.map(x=>`<span class="badge blue">${x}</span>`).join('')}</p><p><b>像在哪里：</b>${like}</p><p><b>不像在哪里：</b>对标只解决客户理解，不代表酒质等同。真正能不能对标，要看入口、中段、后段、空杯和品牌认知是否同时支撑。</p><p><b>场景建议：</b>${scene==='送礼'?'优先看品牌认知和包装，不要只讲酒质。':scene==='商务宴请'?'优先看稳定性、入口接受度和价格带安全。':scene==='招商'?'重点看渠道利润、复购和竞品替代理由。':'重点看酒质价比和客户实际口感。'}</p>`
+}
+let compareCount=0;
+function addCompareRow(name='',score='',price='',note=''){compareCount++;const div=document.createElement('div');div.className='compare-row';div.innerHTML=`<div><label>样品名称</label><input class="cmpName" value="${name}" placeholder="样品${compareCount}"/></div><div><label>评分</label><input class="cmpScore" type="number" value="${score}" placeholder="0-100"/></div><div><label>价格</label><input class="cmpPrice" type="number" value="${price}" placeholder="元"/></div><div><label>备注</label><input class="cmpNote" value="${note}" placeholder="入口/中段/后段"/></div>`;document.getElementById('compareBox').appendChild(div)}
+function runCompare(){
+  const rows=[...document.querySelectorAll('.compare-row')].map(r=>({name:r.querySelector('.cmpName').value||'未命名',score:Number(r.querySelector('.cmpScore').value||0),price:Number(r.querySelector('.cmpPrice').value||0),note:r.querySelector('.cmpNote').value||''})).filter(x=>x.score||x.price);
+  rows.forEach(x=>x.value=x.price?Math.round(x.score*100/x.price):x.score);rows.sort((a,b)=>b.value-a.value);
+  document.getElementById('compareResult').style.display='block';
+  document.getElementById('compareResult').innerHTML=`<h3>对比结果</h3><table class="table"><tr><th>排序</th><th>样品</th><th>评分</th><th>价格</th><th>价值指数</th><th>建议</th></tr>${rows.map((x,i)=>`<tr><td>${i+1}</td><td>${x.name}</td><td>${x.score}</td><td>${x.price}</td><td>${x.value}</td><td>${x.score>=80?'主推':x.score>=70?'观察':x.score>=60?'谨慎':'淘汰'}</td></tr>`).join('')}</table><p class="notice">价值指数=评分×100/价格，仅用于内部选品参考，不能替代品牌和渠道判断。</p>`;
+}
+function loadRecordsToCompare(){const arr=JSON.parse(localStorage.getItem('baijiu_records_v2')||'[]');document.getElementById('compareBox').innerHTML='';compareCount=0;arr.slice(0,5).forEach(r=>addCompareRow(r.productName,r.score,r.price,r.note||r.craft));if(!arr.length)alert('暂无记录')}
+function renderScripts(){const scripts=[['新手客户','刚开始喝酱香，不建议一上来选太重口味的酒。可以先选入口顺、有酱香感、刺激低的产品，慢慢建立口感。'],['懂酒客户','这款酒的重点不在第一口甜，而在中段厚度和后段回味。入口以后酒体能铺开，空杯也比较干净。'],['商务客户','商务用酒最怕太冲和不上档次。这款酒入口比较稳，酱香感有但不压人，适合多人场景。'],['风险解释','如果客户特别在意入口柔顺度，这款酒需要谨慎推荐。它的优势在酒体骨架，不在第一口柔。'],['价格解释','这个价位不能只讲包装和年份，要看入口是否顺、中段是否厚、后段是否干净。']];document.getElementById('scriptList').innerHTML=scripts.map(([k,v])=>`<div class="script"><b>${k}：</b>${v}<br><button class="copy-btn" onclick="copyText('${encodeURIComponent(v)}')">复制话术</button></div>`).join('')}
+function renderRecords(){const arr=JSON.parse(localStorage.getItem('baijiu_records_v2')||'[]');document.getElementById('recordsList').innerHTML=arr.length?arr.map((r,i)=>`<div class="record-item"><b>${r.productName}</b> <span class="badge">${r.score}分</span><span class="badge">${r.craft}</span><p>${r.date}｜建议价位：${r.band}｜风险：${r.risk}</p><button class="copy-btn" onclick='navigator.clipboard.writeText(${JSON.stringify(JSON.stringify(r,null,2))})'>复制</button></div>`).join(''):'<p class="notice">暂无记录。生成报告后点击“保存记录”。</p>'}
+function clearRecords(){if(confirm('确认清空所有记录？')){localStorage.removeItem('baijiu_records_v2');renderRecords()}}
+function exportRecords(){const arr=localStorage.getItem('baijiu_records_v2')||'[]';downloadFile('白酒品鉴记录V2.json',arr)}
+function downloadFile(name,content){const blob=new Blob([content],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+const questions=[
+  {q:'闻香很香，但入口辣、中段薄、后段短，最需要提示什么？',a:['坤沙成熟','前香强但主体结构不足','适合高端送礼'],right:1,ex:'前香可以调，中段最难装。闻香强但中段薄，要警惕调味感或主体不足。'},
+  {q:'后段微苦但能化开，并且有回甘，应该怎么理解？',a:['一定是坏酒','可能是传统酱香层次','一定是串沙'],right:1,ex:'好酱香不是没有苦，而是苦能化、苦后能回甘。'},
+  {q:'500元以上产品最不应该出现什么？',a:['入口明显辣且中段薄','空杯干净','中段有厚度'],right:0,ex:'500元以上应强调顺、厚、长、净，明显辣和中段薄会造成复购风险。'}
+];let qi=0;
+function nextQuestion(){const item=questions[qi%questions.length];document.getElementById('trainingBox').innerHTML=`<div class="card"><h3>${item.q}</h3>${item.a.map((x,i)=>`<button class="primary" style="margin:5px" onclick="answerQ(${i})">${x}</button>`).join('')}<div id="answerBox" class="notice"></div></div>`;qi++}
+function answerQ(i){const item=questions[(qi-1+questions.length)%questions.length];document.getElementById('answerBox').innerHTML=i===item.right?`<span class="badge green">答对</span> ${item.ex}`:`<span class="badge red">答错</span> ${item.ex}`}
+makeRanges();renderScripts();renderRecords();addCompareRow('样品A',78,398,'中段较好，入口略辣');addCompareRow('样品B',72,298,'入口顺，中段一般');nextQuestion();
+</script>
+</body>
+</html>
